@@ -1,34 +1,80 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import './App.css'
+import { useEffect, useState } from "react";
+import "./App.css";
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [count, setCount] = useState(1);
+  const [films, setFilms] = useState("");
+  const [people, setPeople] = useState("");
+
+  const fetchFilms = async () => {
+    const response = await fetch("https://swapi.dev/api/films");
+    const data = await response.json();
+    // console.log(data.results);
+    setFilms(data.results);
+  };
+
+  const fetchPeople = async () => {
+    const response = await fetch("https://swapi.dev/api/people?page=" + count);
+    const data = await response.json();
+    console.log(data.results);
+    setPeople(data.results);
+  };
+
+  useEffect(() => {
+    fetchFilms();
+    fetchPeople();
+  }, [count]);
 
   return (
     <div className="App">
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src="/vite.svg" className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://reactjs.org" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
+      <h1>Star Wars Films</h1>
+
+      {count > 1 ? (
+        <button
+          className="btn btn-warning m-5"
+          onClick={() => {
+            setCount(count - 1);
+          }}
+        >
+          Previous Page of people
         </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
+      ) : (
+        ""
+      )}
+
+      <button
+        className="btn btn-warning m-5"
+        onClick={() => {
+          setCount(count + 1);
+        }}
+      >
+        Next Page of people
+      </button>
+
+      <div className="d-flex justify-content-around">
+        {people === ""
+          ? "waiting"
+          : people.map((person, i) => (
+              <button
+                className="btn btn-primary m-1 mb-5 p-3"
+                style={{ width: "300px" }}
+                key={i}
+              >
+                <h5>{person.name}</h5>
+              </button>
+            ))}
       </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+
+      {films === ""
+        ? "waiting"
+        : films.map((film, i) => (
+            <div key={i}>
+              <h2>{film.title}</h2>
+              <p>{film.opening_crawl}</p>
+            </div>
+          ))}
     </div>
-  )
+  );
 }
 
-export default App
+export default App;
